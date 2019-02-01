@@ -20,8 +20,14 @@ server
     } else if (releaseYear && typeof releaseYear === 'string') {
       res.sendStatus(400);
     } else {
-      games.push({ title, genre, releaseYear });
-      res.status(201).json({ id: games.length });
+      const duplicateTitle = games.find(game => game.title === title);
+
+      if (duplicateTitle) {
+        res.sendStatus(405);
+      } else {
+        games.push({ title, genre, releaseYear });
+        res.status(201).json({ id: games.length });
+      }
     }
   })
   .get('/games', (req, res) => {

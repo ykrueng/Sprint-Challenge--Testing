@@ -46,11 +46,24 @@ describe('server.js', () => {
       let response = await request(server).post('/games').send(body);
       expect(response.status).toBe(201);
 
-      response = await request(server).post('/games').send({ ...body, releaseYear: 1980 });
+      response = await request(server).post('/games').send({ ...body, releaseYear: 1980, title: 'Pacman 2' });
       expect(response.status).toBe(201);
     })
-  });
+    
+    it('should return 405 if the title has been used', async () => {
+      const body = {
+        title: 'Pacman',
+        genre: 'Arcade',
+        releaseYear: 1998,
+      }
 
+      let response = await request(server).post('/games').send(body);
+      response = await request(server).post('/games').send({ ...body, releaseYear: 1980 });
+
+      expect(response.status).toBe(405);
+    })
+  });
+  
   describe('GET /games', () => {
     it('should return status code 200', async () => {
       let response = await request(server).get('/games');
