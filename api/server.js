@@ -5,6 +5,10 @@ server.use(express.json());
 
 const games = [];
 const emptyGames = () => games.length = 0;
+const counter = (() => {
+  let id = 1;
+  return () => id++;
+})();
 
 server
   .post('/games', (req, res) => {
@@ -25,13 +29,25 @@ server
       if (duplicateTitle) {
         res.sendStatus(405);
       } else {
-        games.push({ title, genre, releaseYear });
-        res.status(201).json({ id: games.length });
+        const id = counter();
+        games.push({ id, title, genre, releaseYear });
+        res.status(201).json({ id });
       }
     }
   })
   .get('/games', (req, res) => {
     res.status(200).json({ games: games });
+  })
+  .get('/games/:id', (req, res) => {
+    const { id } = req.params;
+
+    const game = games.find(game => game.id === Number(id));
+
+    if (!game) {
+      res.sendStatus(405);
+    } else {
+      res.status(200).json({ game });
+    }
   })
 
 

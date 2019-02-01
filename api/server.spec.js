@@ -63,7 +63,7 @@ describe('server.js', () => {
       expect(response.status).toBe(405);
     })
   });
-  
+
   describe('GET /games', () => {
     it('should return status code 200', async () => {
       let response = await request(server).get('/games');
@@ -83,10 +83,55 @@ describe('server.js', () => {
         releaseYear: 1998
       }
 
-      await request(server).post('/games').send(body);
+      const postResponse = await request(server).post('/games').send(body);
+      const id = postResponse.body.id;
+
       response = await request(server).get('/games');
       expect(response.body.games.length).toBe(1);
-      expect(response.body.games).toEqual([body]);
+      expect(response.body.games).toEqual([{ ...body, id }]);
+    });
+  });
+
+  describe('GET /games/id', () => {
+    it('should return status code 404 if game is not found', async () => {
+      let response = await request(server).get('/games/1');
+      expect(response.status).toBe(405);
+    });
+    it('should return status code 200 if game is found', async () => {
+      const body = {
+        title: 'Pacman',
+        genre: 'Arcade',
+        releaseYear: 1998
+      }
+
+      const postResponse = await request(server).post('/games').send(body);
+      const id = postResponse.body.id;
+      const response = await request(server).get(`/games/${id}`);
+      expect(response.status).toBe(200);
+    });
+    it('should response with JSON', async () => {
+      const body = {
+        title: 'Pacman',
+        genre: 'Arcade',
+        releaseYear: 1998
+      }
+
+      const postResponse = await request(server).post('/games').send(body);
+      const id = postResponse.body.id;
+      const response = await request(server).get(`/games/${id}`);
+      expect(response.body.game).toEqual({...body, id});
+    });
+    it('should send a game when it is found', async () => {
+      const body = {
+        title: 'Pacman',
+        genre: 'Arcade',
+        releaseYear: 1998
+      }
+
+      const postResponse = await request(server).post('/games').send(body);
+      const id = postResponse.body.id;
+      const response = await request(server).get(`/games/${id}`);
+      expect(response.type).toMatch(/json/i);
     });
   });
 });
