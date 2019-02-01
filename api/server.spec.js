@@ -134,4 +134,38 @@ describe('server.js', () => {
       expect(response.type).toMatch(/json/i);
     });
   });
+
+  describe('DELETE /games/id', () => {
+    it('should return status code 404 if game is not found', async () => {
+      let response = await request(server).delete('/games/1');
+      expect(response.status).toBe(405);
+    });
+    it('should return status 204 if a game is deleted', async () => {
+      const body = {
+        title: 'Pacman',
+        genre: 'Arcade',
+        releaseYear: 1998
+      }
+
+      const postResponse = await request(server).post('/games').send(body);
+      const id = postResponse.body.id;
+      const response = await request(server).delete(`/games/${id}`);
+      expect(response.status).toBe(204);
+    });
+    it('should delete the game if found', async () => {
+      const body = {
+        title: 'Pacman',
+        genre: 'Arcade',
+        releaseYear: 1998
+      }
+
+      const postResponse = await request(server).post('/games').send(body);
+      const id = postResponse.body.id;
+      const response = await request(server).delete(`/games/${id}`);
+      const getResponse = await request(server).get(`/games/${id}`);
+
+      expect(getResponse.status).toBe(405);
+
+    });
+  });
 });

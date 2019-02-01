@@ -3,7 +3,7 @@ const express = require('express');
 server = express();
 server.use(express.json());
 
-const games = [];
+let games = [];
 const emptyGames = () => games.length = 0;
 const counter = (() => {
   let id = 1;
@@ -47,6 +47,18 @@ server
       res.sendStatus(405);
     } else {
       res.status(200).json({ game });
+    }
+  })
+  .delete('/games/:id', (req, res) => {
+    const { id } = req.params;
+
+    const game = games.find(game => game.id === Number(id));
+
+    if (!game) {
+      res.sendStatus(405);
+    } else {
+      games = games.filter(game => game.id !== Number(id));
+      res.sendStatus(204);
     }
   })
 
